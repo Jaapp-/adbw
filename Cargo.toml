@@ -2,6 +2,9 @@
 name = "adbw"
 version = "0.1.0"
 edition = "2024"
+description = "Minimal CLI to connect to Android devices over wireless ADB"
+license = "MIT"
+repository = "https://github.com/Jaapp-/adbw"
 
 [dependencies]
 qrcode = { version = "0.14", default-features = false }
