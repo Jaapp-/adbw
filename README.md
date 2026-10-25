@@ -34,15 +34,18 @@ Scan in Wireless debugging > Pair device with QR code:
 ████▄▄▄▄▄▄▄█▄██▄▄▄▄▄█▄█▄▄█▄█████▄█▄███▄█▄████
 █████████████████████████████████████████████
 ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
-Connected to 192.168.8.177:45579
+Connected to adb-XXXXXXXXXXXXXXX-XXXXXX._adb-tls-connect._tcp
 ```
 
 When already paired:
 
 ```console
 $ adbw
-Connected to 192.168.8.177:45579
+Connected to adb-XXXXXXXXXXXXXXX-XXXXXX._adb-tls-connect._tcp
 ```
+
+Connections use the mDNS service name so ADB reuses the same device entry as its
+automatic mDNS connection.
 
 Troubleshooting: `adbw --debug`.
 

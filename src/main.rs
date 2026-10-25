@@ -35,6 +35,10 @@ struct Service {
 }
 
 impl Service {
+    fn connection_name(&self) -> String {
+        format!("{}.{}", self.instance, self.kind)
+    }
+
     fn address(&self) -> Option<String> {
         if self.port == 0 {
             None
@@ -259,9 +263,12 @@ fn run() -> Result<()> {
                 .is_none_or(|name| *name == service.instance)
             && attempted.insert(address.clone())
         {
+            // Match ADB's automatic mDNS transport identity instead of creating
+            // a second transport under the numeric IP:port serial.
+            let connection_name = service.connection_name();
             target_instance = Some(service.instance);
-            let outcome = connect(&address)?;
-            target = Some(address);
+            let outcome = connect(&connection_name)?;
+            target = Some(connection_name);
             match outcome {
                 Outcome::Success => return Ok(()),
                 Outcome::AuthFailure if pairing.is_none() => pairing = Some(pairing_qr()?),
@@ -296,6 +303,26 @@ fn main() -> ExitCode {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn connection_name_matches_mdns_transport_identity() {
+        let service = Service {
+            instance: "adb-3B15B8009JE00000-Y9yVVJ".into(),
+            kind: "_adb-tls-connect._tcp".into(),
+            ipv4: "192.168.8.177".into(),
+            port: 44147,
+            ..Service::default()
+        };
+        assert_eq!(
+            service.connection_name(),
+            "adb-3B15B8009JE00000-Y9yVVJ._adb-tls-connect._tcp"
+        );
+        assert_eq!(service.address().as_deref(), Some("192.168.8.177:44147"));
+        assert!(needs_pairing(
+            &["connect", &service.connection_name()],
+            "failed to connect to adb-3B15B8009JE00000-Y9yVVJ._adb-tls-connect._tcp"
+        ));
+    }
 
     #[test]
     fn connection_retries_stop_on_success_and_are_bounded() {
